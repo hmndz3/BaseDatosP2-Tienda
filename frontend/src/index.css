@@ -1,4 +1,57 @@
-* {
+/* ============================================================
+   VARIABLES GLOBALES - Paleta de colores y tokens de diseño
+   ============================================================ */
+:root {
+  /* Fondos */
+  --color-bg:           #f3f4f8;
+  --color-bg-alt:       #eaecf3;
+  --color-surface:      #ffffff;
+  --color-surface-alt:  #fafbfd;
+
+  /* Texto */
+  --color-text:         #2d3748;
+  --color-text-soft:    #4a5568;
+  --color-text-muted:   #718096;
+  --color-text-light:   #a0aec0;
+
+  /* Acentos */
+  --color-primary:        #5b6cba;
+  --color-primary-hover:  #4a5aa8;
+  --color-primary-soft:   #e8eaf5;
+  --color-secondary:      #8b7fd9;
+  --color-secondary-soft: #efecf9;
+
+  /* Estados */
+  --color-success:      #67a578;
+  --color-success-soft: #e6f1e9;
+  --color-warning:      #d4a256;
+  --color-warning-soft: #fcf3e3;
+  --color-danger:       #c97070;
+  --color-danger-soft:  #f7e3e3;
+
+  /* Bordes y sombras */
+  --color-border:       #e4e7ee;
+  --color-border-soft:  #eef0f5;
+  --shadow-sm:          0 1px 3px rgba(45, 55, 72, 0.04);
+  --shadow-md:          0 2px 8px rgba(45, 55, 72, 0.06);
+  --shadow-lg:          0 8px 24px rgba(45, 55, 72, 0.08);
+
+  /* Espaciado */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+
+  /* Transiciones */
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -9,8 +62,34 @@ html, body, #root {
 }
 
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  background: #f5f6fa;
-  color: #2d3748;
-  line-height: 1.5;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
 }

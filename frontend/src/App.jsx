@@ -1,45 +1,58 @@
-import { useEffect, useState } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
 
-function App() {
-  const [estado, setEstado] = useState('cargando...');
-  const [stats, setStats] = useState(null);
-
-  useEffect(() => {
-    // Probar que el proxy al backend funciona
-    fetch('/health')
-      .then((r) => r.json())
-      .then((data) => setEstado(`Backend: ${data.status} | DB: ${data.database}`))
-      .catch((err) => setEstado(`Error: ${err.message}`));
-
-    fetch('/api/stats')
-      .then((r) => r.json())
-      .then((data) => setStats(data.stats))
-      .catch(() => setStats(null));
-  }, []);
+function PantallaPrincipal() {
+  const { user, logout } = useAuth();
 
   return (
     <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>Sistema de Inventario - Frontend</h1>
-      <p style={{ marginTop: '20px' }}>{estado}</p>
-
-      {stats && (
-        <div style={{ marginTop: '30px' }}>
-          <h2>Estadísticas de la base de datos</h2>
-          <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
-            {stats.map((s) => (
-              <li key={s.tabla}>
-                <strong>{s.tabla}:</strong> {s.total} registros
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <p style={{ marginTop: '40px', color: '#718096', fontSize: '14px' }}>
-        Si ves los conteos, frontend, backend y BD están conectados correctamente.
+      <h1>Hola, {user.nombre} {user.apellido}</h1>
+      <p style={{ marginTop: 8, color: 'var(--color-text-muted)' }}>
+        Rol: {user.rol} · Usuario: {user.username}
       </p>
+      <p style={{ marginTop: 24, color: 'var(--color-text-soft)' }}>
+        El layout completo (sidebar, dashboard, fichas) viene en el siguiente commit.
+      </p>
+      <button
+        onClick={logout}
+        style={{
+          marginTop: 24,
+          padding: '10px 20px',
+          background: 'var(--color-danger-soft)',
+          color: 'var(--color-danger)',
+          borderRadius: 'var(--radius-md)',
+          fontWeight: 500,
+        }}
+      >
+        Cerrar sesión
+      </button>
     </div>
   );
 }
 
-export default App;
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        color: 'var(--color-text-muted)',
+      }}>
+        Cargando...
+      </div>
+    );
+  }
+
+  return user ? <PantallaPrincipal /> : <Login />;
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
