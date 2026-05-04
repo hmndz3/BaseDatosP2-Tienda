@@ -159,35 +159,36 @@ INSERT INTO producto (codigo, nombre, descripcion, precio_venta, stock, stock_mi
 ('FAR-001', 'Acetaminofén 500mg',    'Caja de 24 tabletas',                    18.00, 100, 20, 25);
 
 -- ---------------------------------------------------------------------
--- USUARIOS (25) - uno por empleado, password_hash placeholder (se reemplazará con bcrypt en commit 4)
+-- USUARIOS (25) - uno por empleado
+-- Contraseña para todos: 'password123' (solo testing)
+-- Hash generado con bcrypt cost=10
 -- ---------------------------------------------------------------------
 INSERT INTO usuario (username, password_hash, rol, id_empleado) VALUES
-('palvarado',  '$2b$10$placeholder0000000000000000000000000000000000000001', 'admin',      1),
-('lcabrera',   '$2b$10$placeholder0000000000000000000000000000000000000002', 'vendedor',   2),
-('msolis',     '$2b$10$placeholder0000000000000000000000000000000000000003', 'vendedor',   3),
-('klopez',     '$2b$10$placeholder0000000000000000000000000000000000000004', 'vendedor',   4),
-('omarroquin', '$2b$10$placeholder0000000000000000000000000000000000000005', 'inventario', 5),
-('srios',      '$2b$10$placeholder0000000000000000000000000000000000000006', 'vendedor',   6),
-('hvelasquez', '$2b$10$placeholder0000000000000000000000000000000000000007', 'inventario', 7),
-('cchen',      '$2b$10$placeholder0000000000000000000000000000000000000008', 'inventario', 8),
-('rmendez',    '$2b$10$placeholder0000000000000000000000000000000000000009', 'vendedor',   9),
-('bsalazar',   '$2b$10$placeholder0000000000000000000000000000000000000010', 'vendedor',  10),
-('itobar',     '$2b$10$placeholder0000000000000000000000000000000000000011', 'vendedor',  11),
-('rjuarez',    '$2b$10$placeholder0000000000000000000000000000000000000012', 'vendedor',  12),
-('mcalderon',  '$2b$10$placeholder0000000000000000000000000000000000000013', 'inventario',13),
-('ebolanos',   '$2b$10$placeholder0000000000000000000000000000000000000014', 'vendedor',  14),
-('tjimenez',   '$2b$10$placeholder0000000000000000000000000000000000000015', 'inventario',15),
-('psoto',      '$2b$10$placeholder0000000000000000000000000000000000000016', 'vendedor',  16),
-('navila',     '$2b$10$placeholder0000000000000000000000000000000000000017', 'vendedor',  17),
-('smonterroso','$2b$10$placeholder0000000000000000000000000000000000000018', 'gerente',   18),
-('aespinoza',  '$2b$10$placeholder0000000000000000000000000000000000000019', 'inventario',19),
-('ngalindo',   '$2b$10$placeholder0000000000000000000000000000000000000020', 'vendedor',  20),
-('vpinto',     '$2b$10$placeholder0000000000000000000000000000000000000021', 'vendedor',  21),
-('gfunes',     '$2b$10$placeholder0000000000000000000000000000000000000022', 'inventario',22),
-('ecarrillo',  '$2b$10$placeholder0000000000000000000000000000000000000023', 'vendedor',  23),
-('laguirre',   '$2b$10$placeholder0000000000000000000000000000000000000024', 'vendedor',  24),
-('forellana',  '$2b$10$placeholder0000000000000000000000000000000000000025', 'inventario',25);
-
+('palvarado',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'admin',      1),
+('lcabrera',   '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',   2),
+('msolis',     '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',   3),
+('klopez',     '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',   4),
+('omarroquin', '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario', 5),
+('srios',      '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',   6),
+('hvelasquez', '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario', 7),
+('cchen',      '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario', 8),
+('rmendez',    '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',   9),
+('bsalazar',   '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  10),
+('itobar',     '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  11),
+('rjuarez',    '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  12),
+('mcalderon',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario',13),
+('ebolanos',   '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  14),
+('tjimenez',   '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario',15),
+('psoto',      '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  16),
+('navila',     '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  17),
+('smonterroso','$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'gerente',   18),
+('aespinoza',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario',19),
+('ngalindo',   '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  20),
+('vpinto',     '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  21),
+('gfunes',     '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario',22),
+('ecarrillo',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  23),
+('laguirre',   '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  24),
+('forellana',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario',25);
 -- ---------------------------------------------------------------------
 -- COMPRAS (25)
 -- ---------------------------------------------------------------------

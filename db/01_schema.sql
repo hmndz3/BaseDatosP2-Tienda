@@ -256,6 +256,18 @@ CREATE INDEX idx_producto_stock_bajo
 
 CREATE INDEX idx_compra_proveedor ON compra (id_proveedor);
 
+-- ---------------------------------------------------------------------
+-- TABLA DE SESIONES (gestionada por connect-pg-simple)
+-- ---------------------------------------------------------------------
+CREATE TABLE session (
+    sid     VARCHAR      NOT NULL COLLATE "default",
+    sess    JSON         NOT NULL,
+    expire  TIMESTAMP(6) NOT NULL,
+    CONSTRAINT session_pkey PRIMARY KEY (sid) NOT DEFERRABLE INITIALLY IMMEDIATE
+);
+
+CREATE INDEX idx_session_expire ON session (expire);
+
 -- Vista de productos con informacion de su categoria y estado del stock
 CREATE OR REPLACE VIEW v_productos_detalle AS
 SELECT

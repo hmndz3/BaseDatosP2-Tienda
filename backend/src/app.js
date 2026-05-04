@@ -1,22 +1,50 @@
 const express = require('express');
 const cors = require('cors');
-const { query } = require('./db');
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const { pool, query } = require('./db');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
+// -----------------------------------------------------------------
 // Middleware
-app.use(cors({ origin: true, credentials: true }));
+// -----------------------------------------------------------------
+app.use(cors({
+  origin: true,        // permite cualquier origen en desarrollo
+  credentials: true,   // necesario para cookies de sesion
+}));
 app.use(express.json());
 
-// Logging básico de cada request
+// Configuracion de sesiones (persistidas en PostgreSQL)
+app.use(session({
+  store: new pgSession({
+    pool: pool,
+    tableName: 'session',
+  }),
+  secret: process.env.SESSION_SECRET || 'cambiar-en-produccion',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false,                  // true solo si usas HTTPS
+    maxAge: 1000 * 60 * 60 * 8,     // 8 horas
+  },
+}));
+
+// Logging
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  const userInfo = req.session?.user ? `[${req.session.user.username}]` : '[anon]';
+  console.log(`[${new Date().toISOString()}] ${userInfo} ${req.method} ${req.path}`);
   next();
 });
 
 // -----------------------------------------------------------------
-// Endpoint de health check: verifica que la BD responde
+// Rutas
 // -----------------------------------------------------------------
+app.use('/api/auth', authRoutes);
+
+// Health check (publico)
 app.get('/health', async (req, res) => {
   try {
     const result = await query('SELECT NOW() AS server_time, version() AS pg_version');
@@ -27,7 +55,7 @@ app.get('/health', async (req, res) => {
       pg_version: result.rows[0].pg_version,
     });
   } catch (err) {
-    console.error('Health check falló:', err);
+    console.error('Health check fallo:', err);
     res.status(503).json({
       status: 'error',
       database: 'disconnected',
@@ -36,9 +64,7 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// -----------------------------------------------------------------
-// Endpoint de prueba: cuenta registros en las tablas principales
-// -----------------------------------------------------------------
+// Stats (publico, lo dejamos abierto para monitoreo)
 app.get('/api/stats', async (req, res) => {
   try {
     const result = await query(`
@@ -53,11 +79,11 @@ app.get('/api/stats', async (req, res) => {
     res.json({ stats: result.rows });
   } catch (err) {
     console.error('Error en /api/stats:', err);
-    res.status(500).json({ error: 'Error al consultar estadísticas' });
+    res.status(500).json({ error: 'Error al consultar estadisticas' });
   }
 });
 
-// 404 para rutas no definidas
+// 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
