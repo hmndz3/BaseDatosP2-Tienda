@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const productosRoutes = require('./routes/productos');
 const categoriasRoutes = require('./routes/categorias');
 const ventasRoutes = require('./routes/ventas');
+const reportesRoutes = require('./routes/reportes');
 const app = express();
 
 // -----------------------------------------------------------------
@@ -48,6 +49,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/ventas', ventasRoutes);
+app.use('/api/reportes', reportesRoutes); 
 
 // Health check (publico)
 app.get('/health', async (req, res) => {
