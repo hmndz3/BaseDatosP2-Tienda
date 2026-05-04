@@ -5,6 +5,7 @@ const pgSession = require('connect-pg-simple')(session);
 const { pool, query } = require('./db');
 const authRoutes = require('./routes/auth');
 const productosRoutes = require('./routes/productos');
+const categoriasRoutes = require('./routes/categorias');
 const app = express();
 
 // -----------------------------------------------------------------
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 // -----------------------------------------------------------------
 app.use('/api/auth', authRoutes);
 app.use('/api/productos', productosRoutes);
+app.use('/api/categorias', categoriasRoutes);
 
 // Health check (publico)
 app.get('/health', async (req, res) => {
