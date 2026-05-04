@@ -1,32 +1,37 @@
+import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Layout from './components/Layout';
 
-function PantallaPrincipal() {
-  const { user, logout } = useAuth();
+function PantallaPlaceholder({ titulo }) {
+  return (
+    <div>
+      <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8 }}>{titulo}</h1>
+      <p style={{ color: 'var(--color-text-muted)' }}>
+        Esta sección se construirá en los próximos commits.
+      </p>
+    </div>
+  );
+}
+
+function AppShell() {
+  const [active, setActive] = useState('dashboard');
+
+  let contenido;
+  switch (active) {
+    case 'dashboard':  contenido = <Dashboard />; break;
+    case 'productos':  contenido = <PantallaPlaceholder titulo="Productos" />; break;
+    case 'categorias': contenido = <PantallaPlaceholder titulo="Categorías" />; break;
+    case 'ventas':     contenido = <PantallaPlaceholder titulo="Ventas" />; break;
+    case 'reportes':   contenido = <PantallaPlaceholder titulo="Reportes" />; break;
+    default:           contenido = <Dashboard />;
+  }
 
   return (
-    <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>Hola, {user.nombre} {user.apellido}</h1>
-      <p style={{ marginTop: 8, color: 'var(--color-text-muted)' }}>
-        Rol: {user.rol} · Usuario: {user.username}
-      </p>
-      <p style={{ marginTop: 24, color: 'var(--color-text-soft)' }}>
-        El layout completo (sidebar, dashboard, fichas) viene en el siguiente commit.
-      </p>
-      <button
-        onClick={logout}
-        style={{
-          marginTop: 24,
-          padding: '10px 20px',
-          background: 'var(--color-danger-soft)',
-          color: 'var(--color-danger)',
-          borderRadius: 'var(--radius-md)',
-          fontWeight: 500,
-        }}
-      >
-        Cerrar sesión
-      </button>
-    </div>
+    <Layout active={active} onNavigate={setActive}>
+      {contenido}
+    </Layout>
   );
 }
 
@@ -41,12 +46,12 @@ function AppContent() {
         placeItems: 'center',
         color: 'var(--color-text-muted)',
       }}>
-        Cargando...
+        Cargando…
       </div>
     );
   }
 
-  return user ? <PantallaPrincipal /> : <Login />;
+  return user ? <AppShell /> : <Login />;
 }
 
 export default function App() {
