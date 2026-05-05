@@ -3,6 +3,8 @@ import { api } from '../api/client';
 import SearchBar from '../components/SearchBar';
 import ProductCard from '../components/ProductCard';
 import EmptyState from '../components/EmptyState';
+import Modal, { modalStyles } from '../components/Modal';
+import ProductDetail from '../components/ProductDetail';
 import styles from '../styles/Productos.module.css';
 
 export default function Productos() {
@@ -14,10 +16,10 @@ export default function Productos() {
   const [busqueda, setBusqueda] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('');
 
-  // Cargar productos y categorías al montar
-  useEffect(() => {
-    cargarDatos();
-  }, []);
+  // Estado del modal
+  const [productoActivo, setProductoActivo] = useState(null);
+
+  useEffect(() => { cargarDatos(); }, []);
 
   async function cargarDatos() {
     setLoading(true);
@@ -36,10 +38,8 @@ export default function Productos() {
     }
   }
 
-  // Filtro en cliente para que sea instantaneo
   const productosFiltrados = useMemo(() => {
     let resultado = productos;
-
     if (busqueda.trim()) {
       const q = busqueda.toLowerCase();
       resultado = resultado.filter((p) =>
@@ -47,24 +47,28 @@ export default function Productos() {
         p.codigo.toLowerCase().includes(q)
       );
     }
-
     if (categoriaFiltro) {
       resultado = resultado.filter((p) =>
         p.id_categoria === parseInt(categoriaFiltro, 10)
       );
     }
-
     return resultado;
   }, [productos, busqueda, categoriaFiltro]);
 
-  function handleProductClick(producto) {
-    // Por ahora solo log; en el commit 13 abriremos el modal
-    console.log('Producto seleccionado:', producto);
-    alert(`Click en: ${producto.nombre}\n\nEl modal de detalle viene en el siguiente commit.`);
+  function cerrarModal() {
+    setProductoActivo(null);
+  }
+
+  function handleEditar() {
+    alert('La edición se implementa en el commit 14.');
+  }
+
+  function handleDesactivar() {
+    alert('La desactivación se implementa en el commit 14.');
   }
 
   function handleAdd() {
-    alert('La creación de productos viene en el commit 14.');
+    alert('La creación se implementa en el commit 14.');
   }
 
   return (
@@ -116,11 +120,35 @@ export default function Productos() {
             <ProductCard
               key={p.id_producto}
               producto={p}
-              onClick={handleProductClick}
+              onClick={setProductoActivo}
             />
           ))}
         </div>
       )}
+
+      {/* Modal de detalle del producto */}
+      <Modal
+        open={productoActivo !== null}
+        onClose={cerrarModal}
+        title="Detalle del producto"
+        footer={
+          <>
+            <button className={`${modalStyles.btn} ${modalStyles.btnGhost}`} onClick={cerrarModal}>
+              Cerrar
+            </button>
+            {productoActivo?.activo && (
+              <button className={`${modalStyles.btn} ${modalStyles.btnDanger}`} onClick={handleDesactivar}>
+                Desactivar
+              </button>
+            )}
+            <button className={`${modalStyles.btn} ${modalStyles.btnPrimary}`} onClick={handleEditar}>
+              Editar
+            </button>
+          </>
+        }
+      >
+        <ProductDetail producto={productoActivo} />
+      </Modal>
     </div>
   );
 }
