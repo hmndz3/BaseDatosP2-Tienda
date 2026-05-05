@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Productos from './pages/Productos';
 import Layout from './components/Layout';
 
 function PantallaPlaceholder({ titulo }) {
@@ -21,7 +22,7 @@ function AppShell() {
   let contenido;
   switch (active) {
     case 'dashboard':  contenido = <Dashboard />; break;
-    case 'productos':  contenido = <PantallaPlaceholder titulo="Productos" />; break;
+    case 'productos':  contenido = <Productos />; break;
     case 'categorias': contenido = <PantallaPlaceholder titulo="Categorías" />; break;
     case 'ventas':     contenido = <PantallaPlaceholder titulo="Ventas" />; break;
     case 'reportes':   contenido = <PantallaPlaceholder titulo="Reportes" />; break;
