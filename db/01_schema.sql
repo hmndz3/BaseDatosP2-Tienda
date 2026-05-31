@@ -122,7 +122,7 @@ CREATE TABLE usuario (
         ON DELETE RESTRICT,
 
     CONSTRAINT chk_usuario_rol
-        CHECK (rol IN ('admin', 'vendedor', 'inventario', 'gerente'))
+        CHECK (rol IN ('admin', 'gerente', 'vendedor', 'inventario', 'cajero'))
 );
 
 -- ---------------------------------------------------------------------
