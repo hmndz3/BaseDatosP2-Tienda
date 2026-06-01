@@ -3,12 +3,19 @@ const cors = require('cors');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { pool, query } = require('./db');
+const { sequelize } = require('./models');
 const authRoutes = require('./routes/auth');
 const productosRoutes = require('./routes/productos');
 const categoriasRoutes = require('./routes/categorias');
 const ventasRoutes = require('./routes/ventas');
 const reportesRoutes = require('./routes/reportes');
+const clientesRoutes = require('./routes/clientes');
 const app = express();
+
+// conectar ORM sin alterar tablas existentes
+sequelize.authenticate()
+  .then(() => console.log('[ORM] Sequelize conectado'))
+  .catch((err) => console.error('[ORM] Error de conexion:', err));
 
 // -----------------------------------------------------------------
 // Middleware
@@ -49,7 +56,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/ventas', ventasRoutes);
-app.use('/api/reportes', reportesRoutes); 
+app.use('/api/reportes', reportesRoutes);
+app.use('/api/clientes', clientesRoutes);
 
 // Health check (publico)
 app.get('/health', async (req, res) => {
