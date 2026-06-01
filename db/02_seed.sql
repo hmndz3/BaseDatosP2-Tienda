@@ -160,8 +160,14 @@ INSERT INTO producto (codigo, nombre, descripcion, precio_venta, stock, stock_mi
 
 -- ---------------------------------------------------------------------
 -- USUARIOS (25) - uno por empleado
--- Contraseña para todos: 'password123' (solo testing)
+-- Contrasena para todos: 'password123' (solo testing)
 -- Hash generado con bcrypt cost=10
+-- Usuarios de prueba por rol:
+--   admin:      palvarado  / password123
+--   gerente:    smonterroso / password123
+--   vendedor:   lcabrera   / password123
+--   inventario: omarroquin / password123
+--   cajero:     forellana  / password123
 -- ---------------------------------------------------------------------
 INSERT INTO usuario (username, password_hash, rol, id_empleado) VALUES
 ('palvarado',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'admin',      1),
@@ -188,7 +194,7 @@ INSERT INTO usuario (username, password_hash, rol, id_empleado) VALUES
 ('gfunes',     '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario',22),
 ('ecarrillo',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  23),
 ('laguirre',   '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'vendedor',  24),
-('forellana',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'inventario',25);
+('forellana',  '$2b$10$QaTDbnJ1JDkoX8txHPSRRemOzo8dq/UrMFfCQdBAo3CS5Qj./igz2', 'cajero',    25);
 -- ---------------------------------------------------------------------
 -- COMPRAS (25)
 -- ---------------------------------------------------------------------
