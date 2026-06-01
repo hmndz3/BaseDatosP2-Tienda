@@ -288,8 +288,31 @@ router.get('/', (req, res) => {
       { id: 'ventas-acumuladas',     nombre: 'Ventas diarias acumuladas',         tipo: 'CTE' },
       { id: 'desempeno-empleados',   nombre: 'Desempeno empleados',               tipo: 'CTE' },
       { id: 'stock-bajo',            nombre: 'Productos con stock bajo',          tipo: 'VIEW' },
+      { id: 'ventas-periodo-sp',     nombre: 'Ventas por periodo (SP)',           tipo: 'STORED PROCEDURE' },
     ],
   });
+});
+
+// GET /api/reportes/ventas-periodo-sp - llama sp_reporte_ventas_periodo
+router.get('/ventas-periodo-sp', async (req, res) => {
+  const { fecha_desde, fecha_hasta } = req.query;
+
+  if (!fecha_desde || !fecha_hasta)
+    return res.status(400).json({ error: 'fecha_desde y fecha_hasta son requeridos' });
+
+  try {
+    console.log(`[SP] Llamando sp_reporte_ventas_periodo ${fecha_desde} - ${fecha_hasta}`);
+    const result = await query(
+      `SELECT * FROM sp_reporte_ventas_periodo($1::date, $2::date)`,
+      [fecha_desde, fecha_hasta]
+    );
+    res.json({ reporte: result.rows, total: result.rowCount });
+  } catch (err) {
+    console.error('[SP] Error sp_reporte_ventas_periodo:', err.message);
+    if (err.message.includes('anterior'))
+      return res.status(400).json({ error: err.message });
+    res.status(500).json({ error: 'Error al generar reporte' });
+  }
 });
 
 module.exports = router;

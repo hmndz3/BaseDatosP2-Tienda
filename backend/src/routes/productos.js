@@ -1,5 +1,5 @@
 const express = require('express');
-const { query } = require('../db');
+const { query, withTransaction } = require('../db');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const Producto = require('../models/Producto');
 
@@ -164,6 +164,57 @@ router.delete('/:id', requireRole('admin', 'inventario', 'gerente'), async (req,
   } catch (err) {
     console.error('Error al eliminar producto:', err);
     res.status(500).json({ error: 'Error al eliminar producto' });
+  }
+});
+
+// PATCH /api/productos/:id/ajustar-stock - llama sp_ajustar_stock
+router.patch('/:id/ajustar-stock', requireRole('admin', 'inventario', 'gerente'), async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: 'ID invalido' });
+
+  const { cantidad, tipo } = req.body;
+  if (!cantidad || !tipo)
+    return res.status(400).json({ error: 'cantidad y tipo son requeridos' });
+
+  try {
+    await withTransaction(async (client) => {
+      console.log(`[SP] Llamando sp_ajustar_stock id=${id} tipo=${tipo} cantidad=${cantidad}`);
+      await client.query(
+        `CALL sp_ajustar_stock($1, $2, $3)`,
+        [id, cantidad, tipo]
+      );
+    });
+    res.json({ message: `Stock ajustado (${tipo}) en ${cantidad} unidades` });
+  } catch (err) {
+    console.error('[SP] Error sp_ajustar_stock:', err.message);
+    if (err.message.includes('insuficiente') || err.message.includes('invalido') || err.message.includes('no existe'))
+      return res.status(400).json({ error: err.message });
+    res.status(500).json({ error: 'Error al ajustar stock' });
+  }
+});
+
+// POST /api/productos/sp - llama sp_crear_producto (OUT params)
+router.post('/sp', requireRole('admin', 'inventario', 'gerente'), async (req, res) => {
+  const { codigo, nombre, descripcion, precio_venta, stock, stock_minimo, id_categoria } = req.body;
+
+  if (!codigo || !nombre || precio_venta === undefined || !id_categoria)
+    return res.status(400).json({ error: 'codigo, nombre, precio_venta e id_categoria son requeridos' });
+
+  try {
+    const resultado = await withTransaction(async (client) => {
+      console.log('[SP] Llamando sp_crear_producto');
+      const r = await client.query(
+        `CALL sp_crear_producto($1, $2, $3, $4, $5, $6, $7, NULL)`,
+        [codigo, nombre, descripcion || null, precio_venta, stock || 0, stock_minimo || 0, id_categoria]
+      );
+      return { id_producto: r.rows[0].p_id_producto };
+    });
+    res.status(201).json({ message: 'Producto creado via SP', ...resultado });
+  } catch (err) {
+    console.error('[SP] Error sp_crear_producto:', err.message);
+    if (err.message.includes('ya existe') || err.message.includes('no existe') || err.message.includes('negativo'))
+      return res.status(400).json({ error: err.message });
+    res.status(500).json({ error: 'Error al crear producto' });
   }
 });
 
