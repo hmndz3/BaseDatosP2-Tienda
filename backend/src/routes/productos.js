@@ -1,6 +1,7 @@
 const express = require('express');
 const { query } = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
+const Producto = require('../models/Producto');
 
 const router = express.Router();
 
@@ -80,127 +81,85 @@ router.get('/:id', async (req, res) => {
 });
 
 // -----------------------------------------------------------------
-// POST /api/productos
+// POST /api/productos - usa ORM
 // -----------------------------------------------------------------
-router.post('/', async (req, res) => {
+router.post('/', requireRole('admin', 'inventario', 'gerente'), async (req, res) => {
   const { codigo, nombre, descripcion, precio_venta, stock, stock_minimo, id_categoria } = req.body;
 
-  // Validaciones
-  if (!codigo || !nombre || precio_venta === undefined || !id_categoria) {
-    return res.status(400).json({
-      error: 'codigo, nombre, precio_venta e id_categoria son requeridos',
-    });
-  }
-  if (precio_venta < 0) {
+  if (!codigo || !nombre || precio_venta === undefined || !id_categoria)
+    return res.status(400).json({ error: 'codigo, nombre, precio_venta e id_categoria son requeridos' });
+  if (precio_venta < 0)
     return res.status(400).json({ error: 'El precio no puede ser negativo' });
-  }
-  if (stock !== undefined && stock < 0) {
-    return res.status(400).json({ error: 'El stock no puede ser negativo' });
-  }
 
   try {
-    const result = await query(
-      `INSERT INTO producto (codigo, nombre, descripcion, precio_venta,
-                             stock, stock_minimo, id_categoria)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id_producto`,
-      [codigo, nombre, descripcion || null, precio_venta,
-       stock || 0, stock_minimo || 0, id_categoria]
-    );
-
-    res.status(201).json({
-      message: 'Producto creado',
-      id_producto: result.rows[0].id_producto,
+    const producto = await Producto.create({
+      codigo, nombre,
+      descripcion:  descripcion  || null,
+      precio_venta,
+      stock:        stock        || 0,
+      stock_minimo: stock_minimo || 0,
+      id_categoria,
     });
+    res.status(201).json({ message: 'Producto creado', id_producto: producto.id_producto });
   } catch (err) {
     console.error('Error al crear producto:', err);
-
-    // Errores de constraints de Postgres
-    if (err.code === '23505') {
+    if (err.name === 'SequelizeUniqueConstraintError')
       return res.status(409).json({ error: 'Ya existe un producto con ese codigo' });
-    }
-    if (err.code === '23503') {
+    if (err.name === 'SequelizeForeignKeyConstraintError')
       return res.status(400).json({ error: 'La categoria no existe' });
-    }
-    if (err.code === '23514') {
-      return res.status(400).json({ error: 'Datos invalidos (revise precio o stock)' });
-    }
     res.status(500).json({ error: 'Error al crear producto' });
   }
 });
 
 // -----------------------------------------------------------------
-// PUT /api/productos/:id
+// PUT /api/productos/:id - usa ORM
 // -----------------------------------------------------------------
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireRole('admin', 'inventario', 'gerente'), async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.status(400).json({ error: 'ID invalido' });
 
   const { codigo, nombre, descripcion, precio_venta, stock, stock_minimo, id_categoria, activo } = req.body;
 
-  if (!codigo || !nombre || precio_venta === undefined || !id_categoria) {
-    return res.status(400).json({
-      error: 'codigo, nombre, precio_venta e id_categoria son requeridos',
-    });
-  }
+  if (!codigo || !nombre || precio_venta === undefined || !id_categoria)
+    return res.status(400).json({ error: 'codigo, nombre, precio_venta e id_categoria son requeridos' });
 
   try {
-    const result = await query(
-      `UPDATE producto
-          SET codigo        = $1,
-              nombre        = $2,
-              descripcion   = $3,
-              precio_venta  = $4,
-              stock         = $5,
-              stock_minimo  = $6,
-              id_categoria  = $7,
-              activo        = $8
-        WHERE id_producto   = $9
-        RETURNING id_producto`,
-      [codigo, nombre, descripcion || null, precio_venta,
-       stock || 0, stock_minimo || 0, id_categoria,
-       activo !== undefined ? activo : true, id]
-    );
+    const producto = await Producto.findByPk(id);
+    if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
+    await producto.update({
+      codigo, nombre,
+      descripcion:  descripcion  || null,
+      precio_venta,
+      stock:        stock        ?? producto.stock,
+      stock_minimo: stock_minimo ?? producto.stock_minimo,
+      id_categoria,
+      activo:       activo !== undefined ? activo : producto.activo,
+    });
     res.json({ message: 'Producto actualizado', id_producto: id });
   } catch (err) {
     console.error('Error al actualizar producto:', err);
-    if (err.code === '23505') {
+    if (err.name === 'SequelizeUniqueConstraintError')
       return res.status(409).json({ error: 'Ya existe otro producto con ese codigo' });
-    }
-    if (err.code === '23503') {
+    if (err.name === 'SequelizeForeignKeyConstraintError')
       return res.status(400).json({ error: 'La categoria no existe' });
-    }
-    if (err.code === '23514') {
-      return res.status(400).json({ error: 'Datos invalidos' });
-    }
     res.status(500).json({ error: 'Error al actualizar producto' });
   }
 });
 
 // -----------------------------------------------------------------
-// DELETE /api/productos/:id (soft delete: marca como inactivo)
+// DELETE /api/productos/:id - soft delete via ORM
 // -----------------------------------------------------------------
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireRole('admin', 'inventario', 'gerente'), async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.status(400).json({ error: 'ID invalido' });
 
   try {
-    const result = await query(
-      `UPDATE producto SET activo = FALSE
-        WHERE id_producto = $1 AND activo = TRUE
-        RETURNING id_producto`,
-      [id]
-    );
-
-    if (result.rowCount === 0) {
+    const producto = await Producto.findByPk(id);
+    if (!producto || !producto.activo)
       return res.status(404).json({ error: 'Producto no encontrado o ya inactivo' });
-    }
 
+    await producto.update({ activo: false });
     res.json({ message: 'Producto desactivado', id_producto: id });
   } catch (err) {
     console.error('Error al eliminar producto:', err);
