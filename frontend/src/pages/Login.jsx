@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import styles from '../styles/Login.module.css';
 
+const USUARIOS = [
+  { username: 'palvarado',   rol: 'admin',      color: '#7c3aed' },
+  { username: 'smonterroso', rol: 'gerente',    color: '#0369a1' },
+  { username: 'lcabrera',    rol: 'vendedor',   color: '#059669' },
+  { username: 'omarroquin',  rol: 'inventario', color: '#d97706' },
+  { username: 'forellana',   rol: 'cajero',     color: '#dc2626' },
+];
+
 export default function Login() {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
@@ -15,12 +23,17 @@ export default function Login() {
     setLoading(true);
     try {
       await login(username, password);
-      // El AuthProvider redirige automaticamente
     } catch (err) {
       setError(err.message || 'Error al iniciar sesion');
     } finally {
       setLoading(false);
     }
+  }
+
+  function usarUsuario(u) {
+    setUsername(u);
+    setPassword('password123');
+    setError(null);
   }
 
   return (
@@ -48,12 +61,12 @@ export default function Login() {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="password">Contraseña</label>
+            <label className={styles.label} htmlFor="password">Contrasena</label>
             <input
               id="password"
               className={styles.input}
               type="password"
-              placeholder="••••••••"
+              placeholder="password123"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -68,9 +81,52 @@ export default function Login() {
         </form>
 
         <div className={styles.hint}>
-          <strong>Usuarios de prueba:</strong><br />
-          palvarado (admin) · smonterroso (gerente) · cchen (inventario)<br />
-          Contraseña para todos: <strong>password123</strong>
+          <p style={{ margin: '0 0 10px', fontWeight: 600, fontSize: 13 }}>
+            Usuarios de prueba — clic para autocompletar
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {USUARIOS.map((u) => (
+              <button
+                key={u.username}
+                type="button"
+                onClick={() => usarUsuario(u.username)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  background: 'none',
+                  border: '1px solid var(--color-border-soft)',
+                  borderRadius: 8,
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+              >
+                <span style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: u.color, color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, flexShrink: 0,
+                }}>
+                  {u.username[0].toUpperCase()}
+                </span>
+                <span style={{ flex: 1 }}>
+                  <span style={{ display: 'block', fontWeight: 600, fontSize: 13, color: 'var(--color-text)' }}>
+                    {u.username}
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--color-text-muted)', textTransform: 'capitalize' }}>
+                    {u.rol}
+                  </span>
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+                  password123
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

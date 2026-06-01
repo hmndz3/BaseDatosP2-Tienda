@@ -1,63 +1,107 @@
-# Proyecto 2 - Sistema de Inventario y Ventas
+# Proyecto 3 - Sistema de Inventario y Ventas
 
-**Curso:** CC3088 - Bases de Datos 1  
-**Universidad del Valle de Guatemala** · Ciclo 1, 2026  
-**Autor:** Harry Mendez · 24089
+**Curso:** CC3088 - Bases de Datos 1
+**Universidad del Valle de Guatemala** Ciclo 1, 2026
+**Autor:** Harry Mendez 24089
+**Rama:** proyecto-3
 
-## Descripción
+## Descripcion
 
-Aplicación web para gestionar el inventario y las ventas de una tienda. Permite manejar productos, categorías, registrar ventas con control de stock, y consultar reportes con consultas SQL avanzadas.
+Extension del Proyecto 2. Agrega seguridad a nivel de base de datos mediante roles y permisos, stored procedures y ORM (Sequelize).
 
-## Tecnologías usadas
+## Tecnologias
 
-- **PostgreSQL 16** — base de datos
-- **Node.js + Express** — backend con SQL crudo (sin ORM)
-- **React + Vite** — frontend
-- **Nginx** — sirve el frontend y hace de proxy al backend
-- **Docker Compose** — orquesta los tres servicios
-- **bcrypt + express-session** — autenticación
+- **PostgreSQL 16** base de datos
+- **Node.js + Express** backend
+- **Sequelize** ORM para operaciones CRUD
+- **React + Vite** frontend
+- **Nginx** sirve el frontend y hace proxy al backend
+- **Docker Compose** orquesta los tres servicios
+- **bcrypt + express-session** autenticacion
 
-## Cómo correr el proyecto
+## Levantar el proyecto
+
 Solo se necesita Docker y Docker Compose instalados.
-# 1. Clonar y entrar al repo
-git clone 
-# 2. Copiar variables de entorno
+
+```bash
+git clone https://github.com/hmndz12/BaseDatosP2-Tienda.git
+cd BaseDatosP2-Tienda
+git checkout proyecto-3
 cp .env.example .env
-# 3. Levantar todo
 docker compose up -d --build
+```
 
-- **Frontend:** http://localhost:8080
-- **Backend:** http://localhost:3001
-- **PostgreSQL:** `localhost:5433` (usuario `proy2`, password `secret`)
+- Frontend: http://localhost:8080
+- Backend: http://localhost:3001
+- PostgreSQL: localhost:5433 (usuario `proy3`, password `secret`)
 
-### Usuarios de prueba
-Todos usan la contraseña `password123`:
-- `palvarado` (admin)
-- `smonterroso` (gerente)
-- `cchen` (inventario)
-- `lcabrera` (vendedor)
+## Usuarios de prueba
 
-## Puntos cubiertos según la rúbrica
+Todos usan la contrasena `password123`.
 
-**I. Diseño de base de datos — 40 pts**
-- Diagrama ER, modelo relacional y normalización hasta 3FN
-- DDL completo con PRIMARY KEY, FOREIGN KEY, NOT NULL y CHECK
-- 6 índices definidos y justificados
-- Datos de prueba con 25+ registros por tabla
-**II. SQL — 50 pts**
-- 3 consultas con JOIN entre múltiples tablas (10 pts)
-- 2 consultas con subquery: IN y correlacionada (10 pts)
-- Consultas con GROUP BY, HAVING y funciones de agregación (8 pts)
-- Consulta con CTE usando WITH (5 pts)
-- VIEW alimentando la UI desde el backend (5 pts)
-- Transacción explícita con BEGIN/COMMIT/ROLLBACK (12 pts)
-**III. Aplicación web — 35 pts**
-- CRUD completo de 2 entidades: productos y categorías (15 pts)
-- Reportes visibles en la UI con datos reales (10 pts)
-- Manejo visible de errores con validaciones y mensajes (5 pts)
-- README con instrucciones funcionales (5 pts)
-**IV. Avanzado — 15 pts**
-- Autenticación con login/logout y sesión persistida (10 pts)
-- Exportación de reportes a CSV (5 pts)
+- `palvarado` — admin
+- `smonterroso` — gerente
+- `lcabrera` — vendedor
+- `omarroquin` — inventario
+- `forellana` — cajero
 
+## Esquema de roles
 
+Los 5 roles existen en el DBMS creados con `CREATE ROLE` y permisos asignados con `GRANT` y `REVOKE`.
+
+**rol_admin**
+Acceso total a todas las tablas: SELECT, INSERT, UPDATE, DELETE.
+
+**rol_gerente**
+SELECT en todas las tablas. INSERT y UPDATE en venta y detalle_venta.
+
+**rol_vendedor**
+SELECT en producto, categoria, cliente, v_productos_detalle, v_ventas_resumen.
+INSERT en venta y detalle_venta. UPDATE en producto.
+
+**rol_inventario**
+SELECT en todas las tablas.
+INSERT, UPDATE, DELETE en producto, categoria, proveedor, compra, detalle_compra.
+Sin acceso a venta, usuario, empleado, cliente.
+
+**rol_cajero**
+SELECT en producto, categoria, cliente, venta, detalle_venta.
+INSERT en venta y detalle_venta. UPDATE del campo estado en venta y campo stock en producto.
+
+### Acceso a la UI por rol
+
+- Dashboard: todos los roles
+- Productos: todos los roles
+- Categorias: admin, gerente, inventario
+- Ventas: admin, gerente, vendedor, cajero
+- Reportes: admin, gerente
+
+## Stored Procedures
+
+**sp_registrar_venta**
+Registra una venta completa. Parametros OUT: id_venta, total.
+Lanza excepcion si hay stock insuficiente o producto inactivo. ROLLBACK en error.
+
+**sp_anular_venta**
+Anula una venta y restaura el stock de cada producto. Parametro OUT: items_restaurados.
+Lanza excepcion si la venta no existe o ya esta anulada.
+
+**sp_ajustar_stock**
+Ajuste manual de stock con tipo "entrada" o "salida".
+Lanza excepcion si el stock resultante seria negativo.
+
+**sp_crear_producto**
+Crea un producto validando unicidad de codigo y existencia de categoria. Parametro OUT: id_producto.
+
+**sp_reporte_ventas_periodo**
+Funcion que retorna resumen de ventas agrupado por dia y metodo de pago en un rango de fechas.
+
+## ORM
+
+Sequelize esta configurado en `backend/src/models/` con modelos para Categoria, Producto, Cliente, Empleado y Usuario.
+Se usa para las operaciones CRUD de Categorias, Productos y Clientes.
+Las consultas avanzadas como reportes, CTEs y JOINs complejos usan SQL explicito.
+
+## Proyecto 2
+
+Todo lo del Proyecto 2 sigue funcional en esta rama: JOINs, subqueries, CTEs, VIEWs, GROUP BY/HAVING, exportacion CSV y autenticacion.
