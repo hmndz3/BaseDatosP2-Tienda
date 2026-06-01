@@ -7,12 +7,32 @@ import Categorias from './pages/Categorias';
 import Reportes from './pages/Reportes';
 import Layout from './components/Layout';
 
+const ACCESO = {
+  dashboard:  ['admin', 'gerente', 'vendedor', 'inventario', 'cajero'],
+  productos:  ['admin', 'gerente', 'vendedor', 'inventario', 'cajero'],
+  categorias: ['admin', 'gerente', 'inventario'],
+  ventas:     ['admin', 'gerente', 'vendedor', 'cajero'],
+  reportes:   ['admin', 'gerente'],
+};
+
+function SinAcceso({ pagina }) {
+  return (
+    <div style={{ padding: 40, textAlign: 'center' }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+      <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>Acceso restringido</h2>
+      <p style={{ color: 'var(--color-text-muted)' }}>
+        Tu rol no tiene permiso para ver <strong>{pagina}</strong>.
+      </p>
+    </div>
+  );
+}
+
 function PantallaVentas() {
   return (
     <div>
       <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8 }}>Ventas</h1>
       <p style={{ color: 'var(--color-text-muted)', marginBottom: 16 }}>
-        El registro de ventas se realiza a través del API con transacciones explícitas (BEGIN/COMMIT/ROLLBACK).
+        El registro de ventas se realiza a traves del API con stored procedures y transacciones.
       </p>
       <div style={{
         background: 'var(--color-surface)',
@@ -21,8 +41,8 @@ function PantallaVentas() {
         padding: 20,
       }}>
         <p style={{ fontSize: 14, color: 'var(--color-text-soft)' }}>
-          Para ver el listado completo de ventas, consultá el reporte{' '}
-          <strong>Ventas detalladas</strong> en la sección Reportes.
+          Para ver el listado de ventas, consulta el reporte{' '}
+          <strong>Ventas detalladas</strong> en la seccion Reportes.
         </p>
       </div>
     </div>
@@ -30,21 +50,35 @@ function PantallaVentas() {
 }
 
 function AppShell() {
-  const [active, setActive] = useState('dashboard');
+  const { user } = useAuth();
+  const rol = user?.rol || '';
 
-  let contenido;
-  switch (active) {
-    case 'dashboard':  contenido = <Dashboard />; break;
-    case 'productos':  contenido = <Productos />; break;
-    case 'categorias': contenido = <Categorias />; break;
-    case 'ventas':     contenido = <PantallaVentas />; break;
-    case 'reportes':   contenido = <Reportes />; break;
-    default:           contenido = <Dashboard />;
+  const paginaInicial = ACCESO.dashboard.includes(rol) ? 'dashboard' : 'productos';
+  const [active, setActive] = useState(paginaInicial);
+
+  function navegar(pagina) {
+    if (ACCESO[pagina]?.includes(rol)) {
+      setActive(pagina);
+    }
+  }
+
+  function renderContenido() {
+    if (!ACCESO[active]?.includes(rol)) {
+      return <SinAcceso pagina={active} />;
+    }
+    switch (active) {
+      case 'dashboard':  return <Dashboard />;
+      case 'productos':  return <Productos />;
+      case 'categorias': return <Categorias />;
+      case 'ventas':     return <PantallaVentas />;
+      case 'reportes':   return <Reportes />;
+      default:           return <Dashboard />;
+    }
   }
 
   return (
-    <Layout active={active} onNavigate={setActive}>
-      {contenido}
+    <Layout active={active} onNavigate={navegar}>
+      {renderContenido()}
     </Layout>
   );
 }
@@ -54,7 +88,7 @@ function AppContent() {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: 'var(--color-text-muted)' }}>
-        Cargando…
+        Cargando...
       </div>
     );
   }

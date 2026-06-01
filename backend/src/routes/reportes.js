@@ -1,9 +1,10 @@
 const express = require('express');
 const { query } = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(requireAuth);
+router.use(requireRole('admin', 'gerente'));
 
 // =================================================================
 // ENDPOINTS DE REPORTES
