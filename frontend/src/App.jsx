@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Productos from './pages/Productos';
 import Categorias from './pages/Categorias';
 import Reportes from './pages/Reportes';
+import Ventas from './pages/Ventas';
 import Layout from './components/Layout';
 
 const ACCESO = {
@@ -14,6 +15,8 @@ const ACCESO = {
   ventas:     ['admin', 'gerente', 'vendedor', 'cajero'],
   reportes:   ['admin', 'gerente'],
 };
+
+// placeholder eliminado — Ventas.jsx maneja la pagina completa
 
 function SinAcceso({ pagina }) {
   return (
@@ -70,7 +73,7 @@ function AppShell() {
       case 'dashboard':  return <Dashboard />;
       case 'productos':  return <Productos />;
       case 'categorias': return <Categorias />;
-      case 'ventas':     return <PantallaVentas />;
+      case 'ventas':     return <Ventas />;
       case 'reportes':   return <Reportes />;
       default:           return <Dashboard />;
     }
